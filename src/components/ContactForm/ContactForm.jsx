@@ -4,14 +4,14 @@ import PropTypes from 'prop-types';
 class ContactForm extends Component {
   static propTypes = {
     onAddContact: PropTypes.func.isRequired,
+    contacts: PropTypes.array.isRequired,
   };
-  constructor(props) {
-    super(props);
-    this.state = {
-      name: '',
-      number: '',
-    };
-  }
+
+  state = {
+    name: '',
+    number: '',
+    error: null,
+  };
 
   handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -28,12 +28,23 @@ class ContactForm extends Component {
   handleSubmit = (event) => {
     event.preventDefault();
     const { name, number } = this.state;
-    this.props.onAddContact(name, number);
-    this.setState({ name: '', number: '' });
+    const { contacts, onAddContact } = this.props;
+    const existingContact = contacts.some(
+      (contact) =>
+        contact.name.toLowerCase() === name.toLowerCase() ||
+        contact.number === number
+    );
+
+    if (existingContact) {
+      alert('Contact already exists');
+    } else {
+      onAddContact(name, number);
+      this.setState({ name: '', number: '', error: null });
+    }
   };
 
   render() {
-    const { name, number } = this.state;
+    const { name, number, error } = this.state;
 
     return (
       <form onSubmit={this.handleSubmit}>
@@ -57,11 +68,11 @@ class ContactForm extends Component {
             required
           />
         </label>
+        {error && <p>{error}</p>}
         <button type="submit">Add Contact</button>
       </form>
     );
   }
 }
-
 
 export default ContactForm;

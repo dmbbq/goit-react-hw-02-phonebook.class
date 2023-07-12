@@ -4,7 +4,6 @@ import { nanoid } from 'nanoid';
 import ContactForm from '../ContactForm/ContactForm';
 import ContactList from '../ContactList/ContactList';
 import Filter from '../Filter/Filter';
-import PropTypes from 'prop-types';
 
 class PhonebookApp extends Component {
   constructor(props) {
@@ -21,18 +20,6 @@ class PhonebookApp extends Component {
       number: '',
     };
   }
-  static propTypes = {
-    contacts: PropTypes.arrayOf(
-      PropTypes.shape({
-        id: PropTypes.string.isRequired,
-        name: PropTypes.string.isRequired,
-        number: PropTypes.string.isRequired,
-      })
-    ).isRequired,
-    filter: PropTypes.string.isRequired,
-    name: PropTypes.string.isRequired,
-    number: PropTypes.string.isRequired,
-  };
 
   handleInputChange = (event) => {
     const { name, value } = event.target;
@@ -41,16 +28,26 @@ class PhonebookApp extends Component {
 
   handleAddContact = (name, number) => {
     const { contacts } = this.state;
-    const newContact = {
-      id: nanoid(),
-      name,
-      number,
-    };
-    this.setState({
-      contacts: [...contacts, newContact],
-      name: '',
-      number: '',
-    });
+    const existingContact = contacts.some(
+      (contact) =>
+        contact.name.toLowerCase() === name.toLowerCase() ||
+        contact.number === number
+    );
+
+    if (existingContact) {
+      alert('Contact already exists');
+    } else {
+      const newContact = {
+        id: nanoid(),
+        name,
+        number,
+      };
+      this.setState({
+        contacts: [...contacts, newContact],
+        name: '',
+        number: '',
+      });
+    }
   };
 
   handleNumberInputChange = (event) => {
@@ -80,6 +77,7 @@ class PhonebookApp extends Component {
       <div>
         <h1>Phonebook</h1>
         <ContactForm
+          contacts={contacts} 
           name={name}
           number={number}
           onInputChange={this.handleInputChange}
